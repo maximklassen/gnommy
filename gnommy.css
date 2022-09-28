@@ -13,6 +13,7 @@
     font-family: Arial, Helvetica, sans-serif;
     color: var(--default-text-color);
     min-width: 100%;
+    box-sizing: border-box;
 }
 
 .gnommy-editor-field {
@@ -136,7 +137,7 @@
     background-color: var(--default-button-bg-color);
     color: var(--second-text-color);
     box-sizing: border-box;
-    padding: 3px 10px;
+    padding: 5px 10px 0px;
     font-size: 11px;
     border-left: 1px solid var(--default-border-color);
     border-right: 1px solid var(--default-border-color);
@@ -166,6 +167,7 @@
 }
 .gnommy-editor-htmlbox.active {
     padding-bottom: 0;
+    padding-top: 5px;
     height: auto;
     max-height: 1000px;
 }

@@ -7,10 +7,14 @@ class Gnommy {
     buttonbox
     footerbox
     pEnter = false
+    showHtml = false
 
     constructor (textfield, params={}) {
         if (params.pEnter) {
             this.pEnter = true
+        }
+        if (params.showHtml) {
+            this.showHtml = true
         }
         this.textfield = this.checkTextarea(textfield)
         this.textfield.style = false
@@ -340,6 +344,9 @@ class Gnommy {
 
         this.textfieldbox = document.createElement('div')
         this.textfieldbox.classList.add('gnommy-editor-htmlbox')
+        if (this.showHtml) {
+            this.textfieldbox.classList.add('active')
+        }
 
         this.footerbox = document.createElement('div')
         this.footerbox.classList.add('gnommy-editor-footer')
