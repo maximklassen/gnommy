@@ -87,6 +87,189 @@ class Gnommy {
         }
     }
 
+    editImagePopup (img) {
+        let self = this,
+            imgWidth = null,
+            imgHeight = null,
+            ratio = 1,
+            naturalWidth = null,
+            naturalHeight = null,
+            naturalRatio = 1
+             
+        imgWidth = img.width;
+        imgHeight = img.height;
+        if (imgWidth && imgHeight) {
+            ratio = imgWidth/imgHeight
+        }
+        naturalWidth = img.naturalWidth;
+        naturalHeight = img.naturalHeight;
+        if (naturalWidth && naturalHeight) {
+            naturalRatio = naturalWidth/naturalHeight
+        }
+
+        if (!imgWidth && naturalWidth) {
+            imgWidth = naturalWidth
+        }
+        if (!imgHeight && naturalHeight) {
+            imgHeight = naturalHeight
+        }
+
+        this.imgeditbox = document.createElement('div')
+        this.imgeditbox.classList.add('gnommy-editor-imgedit-box')
+        this.imgeditTitle = document.createElement('h4')
+        this.imgeditTitle.innerHTML = 'Edit image'
+        this.imgeditFieldLabel = document.createElement('label')
+        this.imgeditFieldLabel.setAttribute('for','imagesrc')
+        this.imgeditFieldLabel.innerHTML = 'Image source'
+        this.imgeditField = document.createElement('input')
+        this.imgeditField.type = 'text'
+        this.imgeditField.name = 'imagesrc'
+        this.imgeditField.id = 'imagesrc'
+        let imgSrc = img.getAttribute('src')
+        this.imgeditField.value = imgSrc
+        
+        this.imgeditTextLabel = document.createElement('label')
+        this.imgeditTextLabel = document.createElement('label')
+        this.imgeditTextLabel.setAttribute('for','imagesrc')
+        this.imgeditTextLabel.innerHTML = 'Alternate text'
+        this.imgeditText = document.createElement('input')
+        this.imgeditText.type = 'text'
+        this.imgeditText.name = 'imagealt'
+        this.imgeditText.id = 'imagealt'
+        this.imgeditText.value = img.getAttribute('alt')
+
+        this.imgeditField.addEventListener('change',function(){
+            let oldNaturalRatio = naturalRatio
+            if (!img || this.value != imgSrc) {
+                img.src = this.value
+                img.onload = function() {
+                    naturalWidth = this.naturalWidth;
+                    naturalHeight = this.naturalHeight;
+                    self.imgeditSizeWidth.value = naturalWidth
+                    self.imgeditSizeHeight.value = naturalHeight
+                    if (naturalWidth && naturalHeight) {
+                        naturalRatio = naturalWidth/naturalHeight
+                    }
+                    else {
+                        naturalRatio = oldNaturalRatio
+                    }
+                }
+                img.onerror = function() {
+                    naturalWidth = null;
+                    naturalHeight = null;
+                    self.imgeditSizeWidth.value = naturalWidth
+                    self.imgeditSizeHeight.value = naturalHeight
+                    naturalRatio = oldNaturalRatio
+                }
+            }
+        })
+
+        /* Size */
+        this.imgeditSizeBox = document.createElement('div')
+        this.imgeditSizeBox.classList.add('gnommy-editor-imagepopup-size')
+        
+        this.imgeditSizeWidthLabel = document.createElement('label')
+        this.imgeditSizeWidthLabel.setAttribute('for','imagewidth')
+        this.imgeditSizeWidthLabel.innerHTML = 'Width'
+        this.imgeditSizeWidth = document.createElement('input')
+        this.imgeditSizeWidth.type = 'number'
+        this.imgeditSizeWidth.name = 'imagewidth'
+        this.imgeditSizeWidth.id = 'imagewidth'
+        this.imgeditSizeWidth.value = imgWidth
+
+        this.imgeditSizeHeightLabel = document.createElement('label')
+        this.imgeditSizeHeightLabel.setAttribute('for','imageheight')
+        this.imgeditSizeHeightLabel.innerHTML = 'Height'
+        this.imgeditSizeHeight = document.createElement('input')
+        this.imgeditSizeHeight.type = 'number'
+        this.imgeditSizeHeight.name = 'imageheight'
+        this.imgeditSizeHeight.id = 'imageheight'
+        this.imgeditSizeHeight.value = imgHeight
+
+        this.imgeditAspectRatioLabel = document.createElement('label')
+        this.imgeditAspectRatioLabel.setAttribute('for','imageratio')
+        this.imgeditAspectRatioLabel.innerHTML = 'Keep aspect ratio'
+        this.imgeditAspectRatio = document.createElement('input')
+        this.imgeditAspectRatio.type = 'checkbox'
+        this.imgeditAspectRatio.name = 'imageratio'
+        this.imgeditAspectRatio.id = 'imageratio'
+        this.imgeditAspectRatio.checked = Math.round(naturalRatio * 10) == Math.round(ratio * 10)
+
+        this.imgeditSizeBox.append(this.imgeditSizeWidthLabel,this.imgeditSizeWidth,this.imgeditSizeHeightLabel,this.imgeditSizeHeight,this.imgeditAspectRatio,this.imgeditAspectRatioLabel)
+
+        this.imgeditSizeWidth.addEventListener('input',function(){
+            imgHeightChange(this.value)
+        })
+        this.imgeditSizeWidth.addEventListener('change',function(){
+            imgHeightChange(this.value)
+        })
+        this.imgeditSizeHeight.addEventListener('input',function(){
+            imgWidthChange(this.value)
+        })
+        this.imgeditSizeHeight.addEventListener('change',function(){
+            imgWidthChange(this.value)
+        })
+
+        function imgHeightChange(width) {
+            width = parseInt(width)
+            if (self.imgeditAspectRatio.checked && width && width > 0) {
+                imgHeight =  Math.round(width/naturalRatio)
+                self.imgeditSizeHeight.value = imgHeight
+            }
+        }
+
+        function imgWidthChange(height) {
+            height = parseInt(height)
+            if (self.imgeditAspectRatio.checked && height && height > 0) {
+                imgWidth =  Math.round(height*naturalRatio)
+                self.imgeditSizeWidth.value = imgWidth
+            }
+        }
+
+        /* /Size */
+
+        this.imgeditButtonBox = document.createElement('div')
+        this.imgeditButtonBox.classList.add('gnommy-editor-imagepopup-buttons')
+        this.imgeditOkButton = document.createElement('button')
+        this.imgeditOkButton.innerHTML = 'OK'
+        this.imgeditCancelButton = document.createElement('button')
+        this.imgeditCancelButton.innerHTML = 'Cancel'
+        this.imgeditButtonBox.append(this.imgeditOkButton,this.imgeditCancelButton)
+        this.imgeditbox.append(this.imgeditTitle,this.imgeditFieldLabel,this.imgeditField,this.imgeditTextLabel,this.imgeditText,this.imgeditSizeBox,this.imgeditButtonBox)
+
+        this.imgeditCancelButton.addEventListener('click',function(){
+            self.closePopup()
+        })
+
+        this.imgeditOkButton.addEventListener('click',function(){
+            if (!img || !self.imgeditField.value) {
+                return false
+            }
+            img.src = self.imgeditField.value
+            if (self.imgeditText.value.length) {
+                img.alt = self.imgeditText.value
+            }
+            else {
+                img.removeAttribute('alt')
+            }
+            if (self.imgeditSizeWidth.value.length) {
+                img.width = self.imgeditSizeWidth.value
+            }
+            else {
+                img.removeAttribute('width')
+            }
+            if (self.imgeditSizeHeight.value.length) {
+                img.height = self.imgeditSizeHeight.value
+            }
+            else {
+                img.removeAttribute('height')
+            }
+            self.closePopup()
+        })
+
+        return this.imgeditbox
+    }
+
     createImagePopup (src=null,img=null) {
         let self = this,
             imgWidth = null,
@@ -113,9 +296,6 @@ class Gnommy {
             }
             isImg = true
         }
-
-        console.log(img)
-        
 
         this.imgeditbox = document.createElement('div')
         this.imgeditbox.classList.add('gnommy-editor-imgedit-box')
@@ -274,8 +454,6 @@ class Gnommy {
                 this.contentClone(this.editorfield,this.textfield)
             }
             else {
-                /* let linkElement = document.createElement('img')
-                linkElement.innerHTML = text */
                 img.setAttribute('alt',this.imgeditText.value)
                 if (this.imgeditSizeWidth.value && this.imgeditSizeWidth.value.length > 0) {
                     img.setAttribute('width',this.imgeditSizeWidth.value)
@@ -291,10 +469,7 @@ class Gnommy {
                 selectionRange.setEndAfter(img)
                 selectionRange.setEndAfter(img)
             }
-            /* img.onload = function() {
-                console.log('????',img)
-                self.setImageContext(img)
-            } */
+            
             this.setImageContext(img)
             
             selectionRange.collapse()
@@ -311,17 +486,6 @@ class Gnommy {
         }
         this.linkeditbox = document.createElement('div')
         this.linkeditbox.classList.add('gnommy-editor-linkedit-box')
-        /* let linkeditContent = `
-        <h4>Create link</h4>
-        <label for="linktext">Text</label>
-        <textarea name="linktext" id="linktext">${text}</textarea>
-        <label for="linkvalue">Link</label>
-        <textarea name="linkvalue" id="linkvalue">${link}</textarea>
-        <div class="gnommy-editor-linkpopup-buttons">
-            <button>OK</button>
-            <button>Canel</button>
-        </div>
-        ` */
         this.linkeditTitle = document.createElement('h4')
         this.linkeditTitle.innerHTML = 'Create link'
         this.linkeditTextLabel = document.createElement('label')
@@ -356,10 +520,6 @@ class Gnommy {
             self.setLink (self.linkeditLink.value, self.linkeditText.value)
         })
 
-
-        /* this.linkeditbox.insertAdjacentHTML('afterbegin',linkeditContent)
-        this.linkeditText = this.linkeditbox.querySelector('#linktext')
-        this.linkeditLink = this.linkeditbox.querySelector('#linkvalue') */
         return this.linkeditbox
     }
 
@@ -486,28 +646,22 @@ class Gnommy {
         if (!selection || !selection.anchorNode) {
             return false
         }
-        //if ((selection.anchorNode.parentNode.closest('.gnommy-editor-field') || selection.anchorNode.parentNode.classList.contains('gnommy-editor-field')) && selection.anchorNode.parentNode.closest('.gnommy-editor-box') === this.editorbox) {
+        if (selection && selection.rangeCount > 0) {
+            let selectionRange = selection.getRangeAt(0)
 
-            if (selection && selection.rangeCount > 0) {
-                let selectionRange = selection.getRangeAt(0)
-        console.log(selectionRange)
+            let container = selectionRange.commonAncestorContainer,
+                src = '',
+                img = null
 
-                let container = selectionRange.commonAncestorContainer,
-                    src = '',
-                    img = null
-
-                if (container.nodeName == 'IMG') {
-                    selectionRange.selectNode(container)
-                    //text = container.innerHTML
-                    //link = container.href
-                    src  = container.src
-                    img = container
-                }
-
-                this.openPopup(this.createImagePopup(src,img),'image')
-                this.lastRange = {'startContainer': selectionRange.startContainer, 'startOffset': selectionRange.startOffset, 'endContainer': selectionRange.endContainer, 'endOffset': selectionRange.endOffset, 'container': container}
+            if (container.nodeName == 'IMG') {
+                selectionRange.selectNode(container)
+                src  = container.src
+                img = container
             }
-        //}
+
+            this.openPopup(this.createImagePopup(src,img),'image')
+            this.lastRange = {'startContainer': selectionRange.startContainer, 'startOffset': selectionRange.startOffset, 'endContainer': selectionRange.endContainer, 'endOffset': selectionRange.endOffset, 'container': container}
+        }
     }
 
 
@@ -525,7 +679,6 @@ class Gnommy {
         this.popuplayer.classList.add('gnommy-editor-popup-layer')
         this.popupwindow = document.createElement('div')
         this.popupwindow.classList.add('gnommy-editor-popup-window')
-        //this.popupwindow.append(this.createLinkPopup())
         
         this.popuplayer.append(this.popupwindow)
         this.editorbox.append(this.popuplayer)
@@ -555,13 +708,11 @@ class Gnommy {
         this.colorButton = this.createButton()
 
         this.ulButton = this.createButton()
-        //this.ulButton.innerHTML = 'Test'
         this.ulButton.addEventListener('click',function(){
             self.setList()
         })
         this.ulButton.insertAdjacentHTML('afterbegin',this.buttonPictures.ul)
         this.olButton = this.createButton()
-        //this.olButton.innerHTML = 'Test 2'
         this.olButton.addEventListener('click',function(){
             self.setList(true)
         })
@@ -678,7 +829,7 @@ class Gnommy {
     setImagesContext() {
         const images = this.editorfield.querySelectorAll('img')
         let self = this
-        console.log(images)
+        
         if (images) {
             images.forEach(image => {
                 image.addEventListener('mouseover',function(e){
@@ -694,17 +845,17 @@ class Gnommy {
     }
 
     setImageContext(image) {
-        console.log('!!!!!!!!!!!',image)
+
         let self = this
 
-            image.addEventListener('mouseover',function(e){
-                self.createImageMenu(image)
-            })
-            image.addEventListener('mouseout',function(e){
-                if (self.imageMenuBox && e.relatedTarget !== self.imageMenuBox) {
-                    self.removeImageMenu()
-                }
-            })
+        image.addEventListener('mouseover',function(e){
+            self.createImageMenu(image)
+        })
+        image.addEventListener('mouseout',function(e){
+            if (self.imageMenuBox && e.relatedTarget !== self.imageMenuBox) {
+                self.removeImageMenu()
+            }
+        })
     }
 
     
@@ -724,7 +875,7 @@ class Gnommy {
         deleteButton.innerHTML = 'Delete'
         this.imageMenuBox.append(editButton, deleteButton)
         let imageCoords = this.getCoordsInBox(image)
-        console.log('imageCoords',imageCoords)
+        
         this.imageMenuBox.style.top = (imageCoords.top + 5) + 'px'
         this.imageMenuBox.style.right = (imageCoords.right - 10) + 'px'
         this.editorfieldbox.append(this.imageMenuBox)
@@ -744,20 +895,10 @@ class Gnommy {
     }
 
     editImageBox (image) {
-        console.log('edit',image)
+        this.openPopup(this.editImagePopup(image),'free')
     }
 
-    deleteImage (image,menu) {
-        /* let selection = document.getSelection()
-        console.log(selection)
-        if (selection && selection.rangeCount > 0) {
-            let selectionRange = selection.getRangeAt(0)
-        console.log(selectionRange)
-
-            selectionRange.selectNode(image)
-            selectionRange.deleteContents()
-            selectionRange.collapse()
-        } */
+    deleteImage (image) {
         if (image) {
             this.imageMenuBox.remove()
             this.imageMenuBox = null
@@ -767,16 +908,6 @@ class Gnommy {
             range.collapse()
         }
     }
-
-    /* imageMenu(self,e) {
-        let imgCoords = this.getCoordsInField(e.target)
-        const contextMenu = document.createElement('div')
-        contextMenu.style.position = 'absolute'
-        contextMenu.style.top = (imgCoords.top + 10) + 'px' 
-        contextMenu.style.right = (imgCoords.right + 10) + 'px' 
-        contextMenu.innerHTML = 'Edit image'
-        
-    } */
 
     openPopup(contentElement,addclass=null) {
         this.popupwindow.append(contentElement)
@@ -821,7 +952,7 @@ class Gnommy {
         if (element) {
             let fieldBox = this.editorfieldbox.getBoundingClientRect(),
                 elementBox = element.getBoundingClientRect()
-                console.log(element,fieldBox,elementBox)
+
             return {
                 top: elementBox.top - fieldBox.top + this.editorfieldbox.scrollTop,
                 right: fieldBox.right - elementBox.right,

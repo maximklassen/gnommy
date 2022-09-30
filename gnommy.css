@@ -101,6 +101,15 @@
 .gnommy-editor-popup-window.image::after {
     left: 348px;
 }
+.gnommy-editor-popup-window.free {
+    top: 50%;
+    left: 50%;
+    translate: -50% -50%;
+}
+.gnommy-editor-popup-window.free::before,
+.gnommy-editor-popup-window.free::after {
+    display: none;
+}
 
 .gnommy-editor-linkedit-box,
 .gnommy-editor-imgedit-box {
