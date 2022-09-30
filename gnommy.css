@@ -16,7 +16,29 @@
     box-sizing: border-box;
 }
 
+
+.gnommy-editor-field-box {
+    height: 260px;
+    border: 1px solid var(--default-border-color);
+    /* padding: 15px; */
+    border-radius: 4px 4px 0 0;
+    overflow-y: auto;
+    position: relative;
+}
 .gnommy-editor-field {
+    min-height: 100%;
+    /* border: 1px solid var(--default-border-color); */
+    padding: 15px;
+    border-radius: 4px 4px 0 0;
+    position: relative;
+    box-sizing: border-box;
+}
+.gnommy-editor-field:focus {
+    outline: none;
+    box-shadow: inset 0px 0px 7px 0px rgba(0, 0, 0, 0.25);
+}
+
+/* .gnommy-editor-field {
     min-height: 220px;
     border: 1px solid var(--default-border-color);
     padding: 15px;
@@ -25,7 +47,7 @@
 .gnommy-editor-field:focus {
     outline: none;
     box-shadow: inset 0px 0px 7px 0px rgba(0, 0, 0, 0.25);
-}
+} */
 
 .gnommy-editor-buttons {
     padding: 5px 0px;
@@ -75,12 +97,18 @@
 .gnommy-editor-popup-window.link::after {
     left: 264px;
 }
+.gnommy-editor-popup-window.image::before,
+.gnommy-editor-popup-window.image::after {
+    left: 348px;
+}
 
-.gnommy-editor-linkedit-box {
+.gnommy-editor-linkedit-box,
+.gnommy-editor-imgedit-box {
     display: flex;
     flex-direction: column;
 }
-.gnommy-editor-linkedit-box h4 {
+.gnommy-editor-linkedit-box h4,
+.gnommy-editor-imgedit-box h4 {
     margin: 0;
     text-align: center;
     
@@ -99,22 +127,45 @@
     border-radius: 5px;
     border: 1px solid var(--default-border-color);
 }
-.gnommy-editor-linkedit-box label {
+.gnommy-editor-imgedit-box input {
+    padding: 5px;
+    border-radius: 5px;
+    border: 1px solid var(--default-border-color);
+    box-sizing: border-box;
+}
+.gnommy-editor-imgedit-box input[type="text"] {
+    width: 100%;
+}
+.gnommy-editor-imgedit-box input[type="number"] {
+    width: 50px;
+    margin-right: 15px;
+}
+.gnommy-editor-linkedit-box label,
+.gnommy-editor-imgedit-box label {
     margin-top: 10px;
     font-size: 14px;
 }
-.gnommy-editor-linkpopup-buttons {
+.gnommy-editor-imgedit-box label {
+    margin-right: 10px;
+}
+.gnommy-editor-imagepopup-size {
+    padding: 10px 0px;
+}
+.gnommy-editor-linkpopup-buttons,
+.gnommy-editor-imagepopup-buttons {
     padding: 15px 10px 0px;
     text-align: center;
 }
-.gnommy-editor-linkpopup-buttons button {
+.gnommy-editor-linkpopup-buttons button,
+.gnommy-editor-imagepopup-buttons button {
     border: 0;
     border-radius: 3px;
     padding: 5px 10px;
     background-color: var(--default-button-bg-color);
     margin: 0px 5px;
 }
-.gnommy-editor-linkpopup-buttons button:hover {
+.gnommy-editor-linkpopup-buttons button:hover,
+.gnommy-editor-imagepopup-buttons button:hover {
     background-color: var(--hover-button-bg-color);
 }
 
@@ -189,6 +240,28 @@
 .gnommy-editor-htmlbox textarea:focus {
     outline: none;
     box-shadow: inset 0px 0px 7px 0px rgba(0, 0, 0, 0.25);
+}
+
+.gnommy-editor-image-menu-box {
+    position: absolute;
+    background-color: var(--default-window-bg-color);
+    padding: 5px 3px;
+    border-radius: 5px;
+    box-shadow: 0px 0px 5px 0px rgba(0, 0, 0, 0.3);
+    /* display: none; */
+}
+.gnommy-editor-image-menu-box.active {
+    display: block;
+}
+.gnommy-editor-image-menu-box button {
+    border: 0;
+    border-radius: 3px;
+    padding: 5px 10px;
+    background-color: var(--default-button-bg-color);
+    margin: 0px 2px;
+}
+.gnommy-editor-image-menu-box button:hover {
+    background-color: var(--hover-button-bg-color);
 }
 
 @media screen and (max-width:480px) {
