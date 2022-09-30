@@ -291,7 +291,12 @@ class Gnommy {
                 selectionRange.setEndAfter(img)
                 selectionRange.setEndAfter(img)
             }
+            /* img.onload = function() {
+                console.log('????',img)
+                self.setImageContext(img)
+            } */
             this.setImageContext(img)
+            
             selectionRange.collapse()
         }
         this.closePopup()
@@ -668,39 +673,6 @@ class Gnommy {
         self.contentClone(this.textfield,self.editorfield,false)
         
         this.setImagesContext()
-
-
-        /* this.observer = new MutationObserver(mutations => {
-            mutations.forEach(mutation => {
-                //console.log(mutation)
-                /* if(mutation.addedNodes.length) {
-                    console.log('Добавили элемент');
-                }
-                else  *
-                if(mutation.removedNodes.length) {
-                    /* console.log('Удалили элемент');
-                    console.log(mutation.removedNodes) *
-                    let isImg = false
-                    mutation.removedNodes.forEach(function(node){
-                        console.log(node)
-                        /* if (node.nodeName == 'IMG' && node.dataset.imgid) {
-                            console.log(node.dataset.imgid)
-                            let imgMenu = document.querySelector('.gnommy-editor-image-menu-box[data-imgid="'+node.dataset.imgid+'"]')
-                            if (imgMenu) {
-                                imgMenu.remove()
-                            }
-                        } *
-                        if (node.nodeName == 'IMG') {
-                            isImg = true
-                        }
-                    })
-                    if (isImg) {
-                        self.resetImagesContext()
-                    }
-                }
-            });
-        });
-        this.observer.observe(this.editorfield, {childList: true, subtree: true}); */
     }
 
     setImagesContext() {
@@ -709,125 +681,38 @@ class Gnommy {
         console.log(images)
         if (images) {
             images.forEach(image => {
-                
-                /* image.removeEventListener('contextmenu',function(){
-                    self.imageContextMenu()
-                }) */
-                //console.log(image)
-                /* image.addEventListener('contextmenu',function(e){
-                    self.imageContextMenu(self,e)
-                }) */
-                //console.log(image,image.getBoundingClientRect())
                 image.addEventListener('mouseover',function(e){
-                    //self.imageMenu(self,e)
                     self.createImageMenu(image)
                 })
                 image.addEventListener('mouseout',function(e){
                     if (self.imageMenuBox && e.relatedTarget !== self.imageMenuBox) {
-                        //menu.classList.remove('active')
                         self.removeImageMenu()
                     }
                 })
-
-                /* image.onload = function() {
-                    console.log
-                    let id = Date.now()
-                    if (id) {
-                        image.dataset.imgid = id
-                    }
-                    let menu = self.createImageMenu(image,id)
-
-                    image.addEventListener('mouseover',function(e){
-                        //self.imageMenu(self,e)
-                        if (menu) {
-                            menu.classList.add('active')
-                        }
-                    })
-                    image.addEventListener('mouseout',function(e){
-                        if (menu && e.relatedTarget !== menu) {
-                            menu.classList.remove('active')
-                        }
-                    })
-                } */
-                
-                
             });
         }
     }
 
-    /* resetImagesContext() {
-        const menuList = document.querySelectorAll('.gnommy-editor-image-menu-box')
-        if (menuList) {
-            menuList.forEach(menu => {
-                console.log(menu)
-                menu.remove()
-            });
-        }
-        let self = this
-        setTimeout(function(){
-            const images = self.editorfield.querySelectorAll('img')
-            console.log(images)
-            if (images) {
-                images.forEach(image => {
-                    
-                    /* image.removeEventListener('contextmenu',function(){
-                        self.imageContextMenu()
-                    }) *
-                    //console.log(image)
-                    /* image.addEventListener('contextmenu',function(e){
-                        self.imageContextMenu(self,e)
-                    }) *
-                    //console.log(image,image.getBoundingClientRect())
-
-
-                        let id = Date.now()
-                        if (id) {
-                            image.dataset.imgid = id
-                        }
-                        let menu = self.createImageMenu(image,id)
-
-                        image.addEventListener('mouseover',function(e){
-                            //self.imageMenu(self,e)
-                            if (menu) {
-                                menu.classList.add('active')
-                            }
-                        })
-                        image.addEventListener('mouseout',function(e){
-                            if (menu && e.relatedTarget !== menu) {
-                                menu.classList.remove('active')
-                            }
-                        })
-                    
-                    
-                });
-            }
-        },200)
-    } */
-
     setImageContext(image) {
-        
+        console.log('!!!!!!!!!!!',image)
         let self = this
-        console.log('sic',image)
-        //image.onload = function() {
-            let menu = self.createImageMenu(image)
 
             image.addEventListener('mouseover',function(e){
-                //self.imageMenu(self,e)
-                if (menu) {
-                    menu.classList.add('active')
-                }
+                self.createImageMenu(image)
             })
             image.addEventListener('mouseout',function(e){
-                if (menu && e.relatedTarget !== menu) {
-                    menu.classList.remove('active')
+                if (self.imageMenuBox && e.relatedTarget !== self.imageMenuBox) {
+                    self.removeImageMenu()
                 }
             })
-        //}
     }
 
     
 
     createImageMenu (image,id=null) {
+        if (this.imageMenuBox) {
+            this.imageMenuBox.remove()
+        }
         this.imageMenuBox = document.createElement('div')
         const editButton = document.createElement('button')
         const deleteButton = document.createElement('button')
@@ -839,6 +724,7 @@ class Gnommy {
         deleteButton.innerHTML = 'Delete'
         this.imageMenuBox.append(editButton, deleteButton)
         let imageCoords = this.getCoordsInBox(image)
+        console.log('imageCoords',imageCoords)
         this.imageMenuBox.style.top = (imageCoords.top + 5) + 'px'
         this.imageMenuBox.style.right = (imageCoords.right - 10) + 'px'
         this.editorfieldbox.append(this.imageMenuBox)
@@ -937,10 +823,10 @@ class Gnommy {
                 elementBox = element.getBoundingClientRect()
                 console.log(element,fieldBox,elementBox)
             return {
-                top: elementBox.top - fieldBox.top,
+                top: elementBox.top - fieldBox.top + this.editorfieldbox.scrollTop,
                 right: fieldBox.right - elementBox.right,
                 bottom: fieldBox.bottom - elementBox.bottom,
-                left: elementBox.left - fieldBox.left
+                left: elementBox.left - fieldBox.left + this.editorfieldbox.scrollLeft
             }
         }
         return {
