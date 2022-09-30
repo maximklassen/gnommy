@@ -832,11 +832,11 @@ class Gnommy {
         this.buttonbox.append(this.italicButton)
         this.buttonbox.append(this.underlineButton)
         this.buttonbox.append(this.strikeButton)
-        this.buttonbox.append(this.ulButton)
-        this.buttonbox.append(this.olButton)
         this.buttonbox.append(this.linkButton)
         this.buttonbox.append(this.unlinkButton)
         this.buttonbox.append(this.imageButton)
+        this.buttonbox.append(this.ulButton)
+        this.buttonbox.append(this.olButton)
         /* /buttons */
 
         this.editorfieldbox = document.createElement('div')
