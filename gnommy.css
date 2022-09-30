@@ -203,6 +203,7 @@
     border-right: 1px solid var(--default-border-color);
     display: flex;
     justify-content: space-between;
+    user-select: none;
 }
 .gnommy-editor-html-button {
     display: inline-block;
@@ -271,6 +272,68 @@
 }
 .gnommy-editor-image-menu-box button:hover {
     background-color: var(--hover-button-bg-color);
+}
+
+.gnommy-editor-hedit-box {
+    display: flex;
+    flex-direction: column;
+}
+
+.gnommy-editor-hedit-button {
+    border: 0;
+    border-radius: 3px;
+    padding: 5px 10px;
+    background-color: var(--default-button-bg-color);
+    margin: 0px 5px;
+    font-weight: bold;
+    height: 36px;
+    margin-bottom: 2px;
+}
+.gnommy-editor-hedit-button:hover {
+    background-color: var(--hover-button-bg-color);
+}
+
+.gnommy-editor-hedit-button:nth-child(1) {
+    font-size: 1.4em;
+}
+.gnommy-editor-hedit-button:nth-child(2) {
+    font-size: 1.3em;
+}
+.gnommy-editor-hedit-button:nth-child(3) {
+    font-size: 1.2em;
+}
+.gnommy-editor-hedit-button:nth-child(4) {
+    font-size: 1.1em;
+}
+.gnommy-editor-hedit-button:nth-child(5) {
+    font-size: 1.0em;
+}
+.gnommy-editor-hedit-button:nth-child(6) {
+    font-size: 0.9em;
+}
+
+.gnommy-editor-resize-box {
+    /* position: absolute;
+    bottom: 0; */
+    width: 100%;
+    padding: 2px 0px 2px;
+    background-color: var(--default-border-color);
+    color: var(--second-text-color);
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: ns-resize;
+    user-select: none;
+}
+.gnommy-editor-resize-box::before,
+.gnommy-editor-resize-box::after {
+    content: '';
+    width: 20px;
+    height: 0;
+    border-top: 1px solid currentColor;
+    margin-bottom: 1px;
 }
 
 @media screen and (max-width:480px) {

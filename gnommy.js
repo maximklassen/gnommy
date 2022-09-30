@@ -16,6 +16,9 @@ class Gnommy {
         if (params.showHtml) {
             this.showHtml = true
         }
+        if (params.height) {
+            this.fieldHeight = parseInt(params.height)
+        }
         this.textfield = this.checkTextarea(textfield)
         this.textfield.style = false
         this.createEditor()
@@ -43,15 +46,16 @@ class Gnommy {
         return button
     }
 
-    fragmentWrap (wrapper,params=null) {
+    fragmentWrap (wrapper,params=null,empty=false) {
         let selection = null
         selection = document.getSelection();
-
         if (selection && selection.rangeCount > 0) {
             let selectionRange = selection.getRangeAt(0)
 
             if ((selection.anchorNode.parentNode.closest('.gnommy-editor-field') || selection.anchorNode.parentNode.classList.contains('gnommy-editor-field')) && selection.anchorNode.parentNode.closest('.gnommy-editor-box') === this.editorbox) {
+
                 if(selection.focusOffset != selection.anchorOffset) {
+                    
                     let start, end
                     if (selection.anchorOffset < selection.focusOffset) {
                         start = selection.anchorOffset
@@ -82,6 +86,14 @@ class Gnommy {
                         selectionRange.insertNode(this.wrap(fragment,wrapper,params))
                     }
                     selectionRange.collapse()
+                }
+                else if (empty) {
+                    let element = document.createElement(wrapper),
+                        br = document.createElement('br')
+                    element.append(br)
+                    selectionRange.insertNode(element)
+                    selectionRange.setEndAfter(br)
+                    selectionRange.setStartAfter(br)
                 }
             }
         }
@@ -477,6 +489,75 @@ class Gnommy {
         this.closePopup()
     }
 
+    createHeaderPopup () {
+        let self = this
+
+        this.heditbox = document.createElement('div')
+        this.heditbox.classList.add('gnommy-editor-hedit-box')
+
+        this.heditButtonOne = document.createElement('button')
+        this.heditButtonOne.classList.add('gnommy-editor-hedit-button')
+        this.heditButtonOne.innerHTML = 'Header 1'
+        this.heditButtonOne.addEventListener('click',function(){
+            self.fragmentWrap('h1',null,true)
+            self.closePopup()
+        }) 
+        this.heditButtonTwo = document.createElement('button')
+        this.heditButtonTwo.classList.add('gnommy-editor-hedit-button')
+        this.heditButtonTwo.innerHTML = 'Header 2'
+        this.heditButtonTwo.addEventListener('click',function(){
+            self.fragmentWrap('h2',null,true)
+            self.closePopup()
+        }) 
+        this.heditButtonThree = document.createElement('button')
+        this.heditButtonThree.classList.add('gnommy-editor-hedit-button')
+        this.heditButtonThree.innerHTML = 'Header 3'
+        this.heditButtonThree.addEventListener('click',function(){
+            self.fragmentWrap('h3',null,true)
+            self.closePopup()
+        }) 
+        this.heditButtonFour = document.createElement('button')
+        this.heditButtonFour.classList.add('gnommy-editor-hedit-button')
+        this.heditButtonFour.innerHTML = 'Header 4'
+        this.heditButtonFour.addEventListener('click',function(){
+            self.fragmentWrap('h4',null,true)
+            self.closePopup()
+        }) 
+        this.heditButtonFive = document.createElement('button')
+        this.heditButtonFive.classList.add('gnommy-editor-hedit-button')
+        this.heditButtonFive.innerHTML = 'Header 5'
+        this.heditButtonFive.addEventListener('click',function(){
+            self.fragmentWrap('h5',null,true)
+            self.closePopup()
+        }) 
+        this.heditButtonSix = document.createElement('button')
+        this.heditButtonSix.classList.add('gnommy-editor-hedit-button')
+        this.heditButtonSix.innerHTML = 'Header 6'
+        this.heditButtonSix.addEventListener('click',function(){
+            self.fragmentWrap('h6',null,true)
+            self.closePopup()
+        }) 
+
+        this.linkeditButtonBox = document.createElement('div')
+        this.linkeditButtonBox.classList.add('gnommy-editor-linkpopup-buttons')
+        //this.linkeditOkButton = document.createElement('button')
+        //this.linkeditOkButton.innerHTML = 'OK'
+        this.linkeditCancelButton = document.createElement('button')
+        this.linkeditCancelButton.innerHTML = 'Cancel'
+        this.linkeditButtonBox.append(/* this.linkeditOkButton, */this.linkeditCancelButton)
+        this.heditbox.append(this.heditButtonOne,this.heditButtonTwo,this.heditButtonThree,this.heditButtonFour,this.heditButtonFive,this.heditButtonSix,this.linkeditButtonBox)
+
+        this.linkeditCancelButton.addEventListener('click',function(){
+            self.closePopup()
+        })
+
+        /* this.linkeditOkButton.addEventListener('click',function(){
+            //self.setHeader (self.linkeditLink.value, self.linkeditText.value)
+        }) */
+
+        return this.heditbox
+    }
+
     createLinkPopup (text='',link='') {
         let self = this
         if (typeof text == 'string' && text.length > 0 && (!link || link.length == 0)) {
@@ -666,7 +747,10 @@ class Gnommy {
 
 
 
-    createEditor () {   
+
+
+
+    createEditor () {
         let self = this
 
         this.editorbox = document.createElement('div')
@@ -684,6 +768,12 @@ class Gnommy {
         this.editorbox.append(this.popuplayer)
 
         /* buttons */
+        this.headerButton = this.createButton()
+        this.headerButton.innerHTML = '<b>H</b>'
+        this.headerButton.addEventListener('click',function(){
+            self.openPopup(self.createHeaderPopup(),'header')
+        })
+
         this.boldButton = this.createButton()
         this.boldButton.innerHTML = '<b>B</b>'
         this.boldButton.addEventListener('click',function(){
@@ -737,6 +827,7 @@ class Gnommy {
         this.imageButton.insertAdjacentHTML('afterbegin',this.buttonPictures.image)
         
 
+        this.buttonbox.append(this.headerButton)
         this.buttonbox.append(this.boldButton)
         this.buttonbox.append(this.italicButton)
         this.buttonbox.append(this.underlineButton)
@@ -750,10 +841,39 @@ class Gnommy {
 
         this.editorfieldbox = document.createElement('div')
         this.editorfieldbox.classList.add('gnommy-editor-field-box')
+        if (this.fieldHeight) {
+            this.editorfieldbox.style.height = this.fieldHeight + 'px'
+        }
 
         this.editorfield = document.createElement('div')
         this.editorfield.classList.add('gnommy-editor-field')
         this.editorfield.setAttribute('contenteditable',true)
+        
+        this.editorresizebox = document.createElement('div')
+        this.editorresizebox.classList.add('gnommy-editor-resize-box')
+
+        this.editorresizebox.addEventListener('mousedown',function(e){
+            self.resizable = true;
+            self.startResizeY = e.pageY
+            self.startResizeH = self.editorfieldbox.clientHeight
+        })
+        this.editorresizebox.addEventListener('mouseup',function(){
+            self.resizable = false;
+            self.startResizeY = self.currentResizeY
+            self.startResizeH = self.currentResizeH
+        })
+        this.editorresizebox.addEventListener('mouseout',function(){
+            self.resizable = false;
+            self.startResizeY = self.currentResizeY
+            self.startResizeH = self.currentResizeH
+        })
+        this.editorresizebox.addEventListener('mousemove',function(e){
+            if (self.resizable) {
+                self.currentResizeY = e.pageY - self.startResizeY
+                self.currentResizeH = self.startResizeH + self.currentResizeY
+                self.editorfieldbox.style.height = self.currentResizeH + 'px'
+            }
+        })
 
         this.editorfieldbox.append(this.editorfield)
 
@@ -778,6 +898,7 @@ class Gnommy {
 
         this.editorbox.append(this.buttonbox)
         this.editorbox.append(this.editorfieldbox)
+        this.editorbox.append(this.editorresizebox)
         this.editorbox.append(this.footerbox)
         this.editorbox.append(this.textfieldbox)
 
@@ -824,6 +945,10 @@ class Gnommy {
         self.contentClone(this.textfield,self.editorfield,false)
         
         this.setImagesContext()
+    }
+
+    setFieldboxHeight () {
+
     }
 
     setImagesContext() {
