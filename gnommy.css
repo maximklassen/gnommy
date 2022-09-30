@@ -93,6 +93,10 @@
     z-index: -1;
     box-shadow: -1px -1px 5px 0px rgba(0, 0, 0, 0.3);
 }
+.gnommy-editor-popup-window.header::before,
+.gnommy-editor-popup-window.header::after {
+    left: 12px;
+}
 .gnommy-editor-popup-window.link::before,
 .gnommy-editor-popup-window.link::after {
     left: 218px;

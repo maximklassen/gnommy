@@ -770,57 +770,67 @@ class Gnommy {
         /* buttons */
         this.headerButton = this.createButton()
         this.headerButton.innerHTML = '<b>H</b>'
+        this.headerButton.title = 'Header'
         this.headerButton.addEventListener('click',function(){
             self.openPopup(self.createHeaderPopup(),'header')
         })
 
         this.boldButton = this.createButton()
         this.boldButton.innerHTML = '<b>B</b>'
+        this.boldButton.title = 'Bold'
         this.boldButton.addEventListener('click',function(){
             self.fragmentWrap('b')
         })
 
         this.italicButton = this.createButton()
         this.italicButton.innerHTML = '<i>I</i>'
+        this.italicButton.title = 'Italic'
         this.italicButton.addEventListener('click',function(){
             self.fragmentWrap('i')
         })
         this.underlineButton = this.createButton()
         this.underlineButton.innerHTML = '<u>U</u>'
+        this.underlineButton.title = 'Underline'
         this.underlineButton.addEventListener('click',function(){
             self.fragmentWrap('u')
         })
         this.strikeButton = this.createButton()
         this.strikeButton.innerHTML = '<s>S</s>'
+        this.strikeButton.title = 'Strike'
         this.strikeButton.addEventListener('click',function(){
             self.fragmentWrap('s')
         })
         this.colorButton = this.createButton()
 
         this.ulButton = this.createButton()
+        this.ulButton.title = 'Unordered list'
         this.ulButton.addEventListener('click',function(){
             self.setList()
         })
         this.ulButton.insertAdjacentHTML('afterbegin',this.buttonPictures.ul)
         this.olButton = this.createButton()
+        this.olButton.title = 'Ordered list'
         this.olButton.addEventListener('click',function(){
             self.setList(true)
         })
         this.olButton.insertAdjacentHTML('afterbegin',this.buttonPictures.ol)
 
         this.linkButton = this.createButton()
+        this.linkButton.title = 'Link'
         this.linkButton.addEventListener('click',function(){
             self.getPopupLink()
         })
         this.linkButton.insertAdjacentHTML('afterbegin',this.buttonPictures.link)
 
         this.unlinkButton = this.createButton()
+        this.unlinkButton.title = 'Remove link'
         this.unlinkButton.addEventListener('click',function(){
             self.unsetLink()
         })
         this.unlinkButton.insertAdjacentHTML('afterbegin',this.buttonPictures.unlink)
 
         this.imageButton = this.createButton()
+        this.imageButton.title = 'Add image'
         this.imageButton.addEventListener('click',function(){
             self.getPopupImage()
         })
