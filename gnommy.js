@@ -8,8 +8,12 @@ class Gnommy {
     footerbox
     pEnter = false
     showHtml = false
+    noResize = false
 
     constructor (textfield, params={}) {
+        if (params.noResize) {
+            this.noResize = true
+        }
         if (params.pEnter) {
             this.pEnter = true
         }
@@ -21,7 +25,7 @@ class Gnommy {
         }
         this.textfield = this.checkTextarea(textfield)
         this.textfield.style = false
-        this.createEditor()
+        this.init()
     }
 
     checkTextarea (textfield) {
@@ -750,7 +754,7 @@ class Gnommy {
 
 
 
-    createEditor () {
+    init () {
         let self = this
 
         this.editorbox = document.createElement('div')
@@ -800,7 +804,20 @@ class Gnommy {
         this.strikeButton.addEventListener('click',function(){
             self.fragmentWrap('s')
         })
+
         this.colorButton = this.createButton()
+        this.colorButton.title = 'Text color'
+        this.colorButton.insertAdjacentHTML('afterbegin',this.buttonPictures.color)
+        this.colorButton.addEventListener('click',function(){
+            self.createColorPopup()
+        })
+
+        this.backgroundButton = this.createButton()
+        this.backgroundButton.title = 'Text background color'
+        this.backgroundButton.insertAdjacentHTML('afterbegin',this.buttonPictures.background)
+        this.backgroundButton.addEventListener('click',function(){
+            self.createColorPopup(true)
+        })
 
         this.ulButton = this.createButton()
         this.ulButton.title = 'Unordered list'
@@ -837,16 +854,20 @@ class Gnommy {
         this.imageButton.insertAdjacentHTML('afterbegin',this.buttonPictures.image)
         
 
-        this.buttonbox.append(this.headerButton)
-        this.buttonbox.append(this.boldButton)
-        this.buttonbox.append(this.italicButton)
-        this.buttonbox.append(this.underlineButton)
-        this.buttonbox.append(this.strikeButton)
-        this.buttonbox.append(this.linkButton)
-        this.buttonbox.append(this.unlinkButton)
-        this.buttonbox.append(this.imageButton)
-        this.buttonbox.append(this.ulButton)
-        this.buttonbox.append(this.olButton)
+        this.buttonbox.append(
+            this.headerButton,
+            this.boldButton,
+            this.italicButton,
+            this.underlineButton,
+            this.strikeButton,
+            this.colorButton,
+            this.backgroundButton,
+            this.imageButton,
+            this.linkButton,
+            this.unlinkButton,
+            this.ulButton,
+            this.olButton
+        )
         /* /buttons */
 
         this.editorfieldbox = document.createElement('div')
@@ -872,12 +893,14 @@ class Gnommy {
             self.startResizeY = self.currentResizeY
             self.startResizeH = self.currentResizeH
         })
-        this.editorresizebox.addEventListener('mouseout',function(){
+        //this.editorresizebox.addEventListener('mouseout',function(){
+        /* this.editorbox.addEventListener('mouseout',function(){
             self.resizable = false;
             self.startResizeY = self.currentResizeY
             self.startResizeH = self.currentResizeH
-        })
-        this.editorresizebox.addEventListener('mousemove',function(e){
+        }) */
+        //this.editorresizebox.addEventListener('mousemove',function(e){
+        this.editorbox.addEventListener('mousemove',function(e){
             if (self.resizable) {
                 self.currentResizeY = e.pageY - self.startResizeY
                 self.currentResizeH = self.startResizeH + self.currentResizeY
@@ -908,7 +931,9 @@ class Gnommy {
 
         this.editorbox.append(this.buttonbox)
         this.editorbox.append(this.editorfieldbox)
-        this.editorbox.append(this.editorresizebox)
+        if (!this.noResize) {
+            this.editorbox.append(this.editorresizebox)
+        }
         this.editorbox.append(this.footerbox)
         this.editorbox.append(this.textfieldbox)
 
@@ -957,10 +982,6 @@ class Gnommy {
         this.setImagesContext()
     }
 
-    setFieldboxHeight () {
-
-    }
-
     setImagesContext() {
         const images = this.editorfield.querySelectorAll('img')
         let self = this
@@ -993,7 +1014,118 @@ class Gnommy {
         })
     }
 
-    
+    createColorPopup (bg = false) {
+        let selection = null
+        selection = document.getSelection();
+        if (!selection || !selection.anchorNode) {
+            return false
+        }
+        if (selection && selection.rangeCount > 0) {
+            let selectionRange = selection.getRangeAt(0)
+
+            let container = selectionRange.commonAncestorContainer,
+                popupClass = 'textcolor'
+            
+            if (bg) {
+                popupClass = 'selectcolor'
+            }
+
+            this.openPopup(this.createColor(bg),popupClass)
+            this.lastRange = {'startContainer': selectionRange.startContainer, 'startOffset': selectionRange.startOffset, 'endContainer': selectionRange.endContainer, 'endOffset': selectionRange.endOffset, 'container': container}
+        }
+    }
+
+    setTextColor(color) {
+        if (color) {
+            console.log(color)
+            let range = new Range()
+            range.setStart(this.lastRange.startContainer,this.lastRange.startOffset)
+            range.setEnd(this.lastRange.endContainer,this.lastRange.endOffset)
+            //console.log(this.getParent(this.lastRange.endContainer,'span','color'))
+            let fragment = this.unwrap(range.extractContents().childNodes,'span',true,'color')
+            range.insertNode(this.wrap(fragment,'span',{'color':color}))
+            console.log(range)
+            //range.collapse()
+            this.closePopup()
+        }
+    }
+
+    setBgColor(color) {
+        if (color) {
+            console.log(color)
+            let range = new Range()
+            range.setStart(this.lastRange.startContainer,this.lastRange.startOffset)
+            range.setEnd(this.lastRange.endContainer,this.lastRange.endOffset)
+            //console.log(this.getParent(this.lastRange.endContainer,'span','color'))
+            let fragment = this.unwrap(range.extractContents().childNodes,'span',true,'backgroundColor')
+            range.insertNode(this.wrap(fragment,'span',{'background-color':color}))
+            console.log(range)
+            //range.collapse()
+            this.closePopup()
+        }
+    }
+
+    createColor (bg = false) {
+        this.colorBox = document.createElement('div')
+        this.colorBox.classList.add('gnommy-editor-color-box')
+
+        this.colorLabel = document.createElement('label')
+        this.colorLabel.setAttribute('for','color')
+        if (bg) {
+            this.colorLabel.innerHTML = 'Select color'
+            this.colorRemoveInput = document.createElement('input')
+            this.colorRemoveInput.type = 'checkbox'
+            this.colorRemoveInput.name = 'transparent'
+            this.colorRemoveInput.id = 'transparent'
+            this.colorRemoveInputLabel = document.createElement('label')
+            this.colorRemoveInputLabel.setAttribute('for','transparent')
+            this.colorRemoveInputLabel.innerHTML = 'Remove color'
+        }
+        else {
+            this.colorLabel.innerHTML = 'Text color'
+        }
+        this.colorInput = document.createElement('input')
+        this.colorInput.type = 'color'
+        this.colorInput.name = 'color'
+        this.colorInput.id = 'color'
+
+        this.linkeditButtonBox = document.createElement('div')
+        this.linkeditButtonBox.classList.add('gnommy-editor-linkpopup-buttons')
+        this.linkeditOkButton = document.createElement('button')
+        this.linkeditOkButton.innerHTML = 'OK'
+        this.linkeditCancelButton = document.createElement('button')
+        this.linkeditCancelButton.innerHTML = 'Cancel'
+        this.linkeditButtonBox.append(this.linkeditOkButton,this.linkeditCancelButton)
+        this.colorBox.append(this.colorLabel,this.colorInput)
+        if (bg) {
+            this.colorBox.append(this.colorRemoveInput,this.colorRemoveInputLabel)
+        }
+        this.colorBox.append(this.linkeditButtonBox)
+
+        let self = this
+
+        this.linkeditCancelButton.addEventListener('click',function(){
+            self.closePopup()
+        })
+
+        this.linkeditOkButton.addEventListener('click',function(){
+            let color = self.colorInput.value
+            
+            if (color) {
+                if (bg) {
+                    if (self.colorRemoveInput.checked) {
+                        color = 'transparent'
+                    }
+                    self.setBgColor(color)
+                }
+                else {
+                    self.setTextColor(color)
+                }
+            }
+        })
+
+        return this.colorBox
+    }
 
     createImageMenu (image,id=null) {
         if (this.imageMenuBox) {
@@ -1354,7 +1486,7 @@ class Gnommy {
         return false
     }
 
-    getParent (element,nodeName) {
+    getParent (element,nodeName,hasStyle=false) {
         if (typeof nodeName == 'string' && nodeName.slice(0,1) != '#') {
             nodeName = nodeName.toUpperCase()
         }
@@ -1362,7 +1494,7 @@ class Gnommy {
             return false
         }
         if (element && (element instanceof DocumentFragment || element instanceof HTMLElement || element.nodeType == 3)) {
-            if (element.tagName == nodeName) {
+            if (element.tagName == nodeName && (!hasStyle || element.style[hasStyle])) {
                 return element
             }
             else {
@@ -1489,9 +1621,10 @@ class Gnommy {
             wrapper = document.createElement(wrapper);
             if (!this.isEmpty(style)) {
                 if (typeof style == 'object') {
-                    style = objectToSyleStr(style)
+                    style = this.objectToSyleStr(style)
                 }
-                wrapper.style = style
+                //wrapper.style = style
+                wrapper.setAttribute('style',style)
             }
             wrapper.append(element)
             return wrapper
@@ -1499,14 +1632,14 @@ class Gnommy {
         return element
     }
 
-    unwrap(nodeList,wrapperName,deep=true) {
+    unwrap(nodeList,wrapperName,deep=true,hasStyle=false) {
         let self = this,
             fragment = new DocumentFragment()
         Array.from(nodeList).forEach(function(node) {
             if (deep && node.childNodes && node.childNodes.length > 0 && (node.childNodes.length > 1 || node.childNodes[0].nodeName != '#text')) {
-                fragment.append(self.unwrap(node.childNodes,wrapperName))
+                fragment.append(self.unwrap(node.childNodes,wrapperName,deep,hasStyle))
             }
-            else if (wrapperName.toUpperCase() == node.nodeName) {
+            else if (wrapperName.toUpperCase() == node.nodeName && (!hasStyle || (hasStyle && node.style[hasStyle]))) {
                 fragment.append(node.textContent)
                 if (node.nodeName == 'LI') {
                     fragment.append(document.createElement('br'))
@@ -1524,7 +1657,9 @@ class Gnommy {
         'ol': `<svg width="18px" height="18px" viewBox="0 0 30 30" version="1.1" id="svg5"><defs id="defs2" /><g id="layer1"><g aria-label="1" id="text14687" style="font-size:8.50085px;line-height:1.25;font-family:'Barlow ExtraBold';-inkscape-font-specification:'Barlow ExtraBold, ';letter-spacing:0px;word-spacing:0px;stroke-width:0.212522" /><g aria-label="2" id="text14687-3" style="font-size:8.50085px;line-height:1.25;font-family:'Barlow ExtraBold';-inkscape-font-specification:'Barlow ExtraBold, ';letter-spacing:0px;word-spacing:0px;stroke-width:0.212522" /><path id="path22480" d="m 6.6297508,25.08727 q 0.1700169,0.408041 0.1700169,0.875588 0,0.459046 -0.1700169,0.858586 -0.2210221,0.552555 -0.7225723,0.875587 -0.5015501,0.314532 -1.1816181,0.314532 -0.6630663,0 -1.1731172,-0.323033 -0.510051,-0.331533 -0.739574,-0.892589 -0.1360136,-0.340034 -0.1615161,-0.748075 0,-0.10201 0.1020102,-0.10201 h 1.2241223 q 0.1020102,0 0.1105111,0.10201 0.017002,0.212522 0.1020102,0.408041 0.068007,0.170017 0.2040204,0.263526 0.1360136,0.08501 0.3230323,0.08501 0.3570357,0 0.5355535,-0.323032 0.1190119,-0.212522 0.1190119,-0.561056 0,-0.340034 -0.1190119,-0.59506 -0.1785178,-0.314531 -0.5440544,-0.314531 -0.093509,0 -0.2125212,0.06801 -0.1105111,0.05951 -0.2890289,0.187019 -0.042504,0.0255 -0.068007,0.0255 -0.051005,0 -0.076508,-0.051 L 3.4589338,24.390201 q -0.025502,-0.04251 -0.025502,-0.06801 0,-0.051 0.042504,-0.07651 l 1.3091309,-0.994599 q 0.017002,-0.017 0.0085,-0.034 0,-0.017 -0.025502,-0.017 H 2.9063786 q -0.042504,0 -0.076508,-0.0255 -0.025502,-0.034 -0.025502,-0.07651 v -1.0031 q 0,-0.0425 0.025502,-0.06801 0.034003,-0.034 0.076508,-0.034 h 3.7063705 q 0.042504,0 0.068007,0.034 0.034003,0.0255 0.034003,0.06801 v 1.130613 q 0,0.07651 -0.059506,0.127513 l -1.0286028,0.807581 q -0.017002,0.017 -0.017002,0.034 0.0085,0.017 0.034003,0.0255 0.680068,0.178517 0.9860986,0.867086 z M 4.6660545,16.747922 q -0.017002,0.017 -0.0085,0.034 0.0085,0.017 0.034003,0.017 h 2.1677167 q 0.042504,0 0.068007,0.034 0.034003,0.0255 0.034003,0.06801 v 1.0031 q 0,0.0425 -0.034003,0.07651 -0.025503,0.0255 -0.068007,0.0255 h -3.986899 q -0.042504,0 -0.076508,-0.0255 -0.025502,-0.034 -0.025502,-0.07651 v -0.943594 q 0,-0.07651 0.051005,-0.127513 0.510051,-0.476048 1.3516351,-1.368637 l 0.510051,-0.535553 q 0.7735773,-0.79908 0.7735773,-1.164617 0,-0.246524 -0.1870187,-0.408041 -0.1785178,-0.161516 -0.4675467,-0.161516 -0.2890289,0 -0.4675468,0.161516 -0.1785178,0.161517 -0.1785178,0.425043 v 0.20402 q 0,0.04251 -0.034003,0.07651 -0.025503,0.0255 -0.068007,0.0255 H 2.8298709 q -0.042504,0 -0.076508,-0.0255 -0.025503,-0.034 -0.025503,-0.07651 v -0.425042 q 0.034003,-0.476048 0.3145315,-0.833083 0.280528,-0.357036 0.7395739,-0.544055 0.4590459,-0.195519 1.020102,-0.195519 0.6290628,0 1.0966096,0.238023 0.4760476,0.229523 0.7225722,0.629063 0.2550255,0.39954 0.2550255,0.884089 0,0.348534 -0.170017,0.70557 -0.170017,0.357036 -0.510051,0.756576 Q 5.9581828,15.489791 5.6606531,15.78732 5.3631233,16.08485 4.8360707,16.5864 Z M 4.2025246,2.0691242 q 0.068007,-0.025503 0.1275127,-0.025503 h 1.2411241 q 0.042504,0 0.068007,0.034003 0.034003,0.025503 0.034003,0.068007 v 5.7465744 q 0,0.042504 -0.034003,0.076508 -0.025503,0.025502 -0.068007,0.025502 H 4.3640407 q -0.042504,0 -0.076508,-0.025502 -0.025503,-0.034003 -0.025503,-0.076508 V 3.3952567 q 0,-0.017002 -0.017002,-0.034003 -0.017002,-0.017002 -0.034003,-0.0085 l -0.8330832,0.1955195 -0.034003,0.0085 q -0.076508,0 -0.076508,-0.093509 L 3.2504294,2.5706743 q 0,-0.085008 0.076508,-0.1190119 z M 10,24 h 18 v 2 H 10 Z m 0,-10 h 18 v 2 H 10 Z M 10,4 H 28 V 6 H 10 Z" style="font-size:8.50085px;line-height:1.25;font-family:'Barlow ExtraBold';-inkscape-font-specification:'Barlow ExtraBold, ';letter-spacing:0px;word-spacing:0px;stroke-width:0.212522" /></g></svg>`,
         'link': `<svg width="18px" height="18px" viewBox="0 0 30 30" version="1.1" id="svg5"><defs id="defs2" /><g id="layer1"><g aria-label="a" id="text14687" style="font-size:8.50085px;line-height:1.25;font-family:'Barlow ExtraBold';-inkscape-font-specification:'Barlow ExtraBold, ';letter-spacing:0px;word-spacing:0px;stroke-width:0.212522" /><g aria-label="b" id="text14687-3" style="font-size:8.50085px;line-height:1.25;font-family:'Barlow ExtraBold';-inkscape-font-specification:'Barlow ExtraBold, ';letter-spacing:0px;word-spacing:0px;stroke-width:0.212522" /><path id="path30795" style="color:#000000;fill:#000000;stroke-width:0.860644;stroke-linecap:round;-inkscape-stroke:none" d="m 17.52095,15.640807 c 1.300807,-0.567273 2.880881,-0.321499 3.939699,0.737319 l 5.477102,5.477102 c 1.378884,1.378883 1.378884,3.641794 0,5.020676 -1.378882,1.378883 -3.641792,1.378883 -5.020676,0 l -5.477102,-5.477102 c -1.06846,-1.068461 -1.309,-2.667715 -0.721618,-3.975167 l 1.620754,1.66488 c 0.04396,0.340773 0.200673,0.671545 0.47014,0.941012 l 5.477103,5.477101 c 0.64399,0.643991 1.638134,0.643991 2.282124,0 0.64399,-0.643989 0.64399,-1.638134 0,-2.282124 l -5.477102,-5.477102 c -0.285473,-0.285475 -0.639754,-0.4444 -1.001839,-0.476781 z M 11.154289,9.8325194 a 0.89059384,0.89059384 0 0 0 -1.2599225,0 0.89059384,0.89059384 0 0 0 0,1.2599226 l 9.1285015,9.128502 a 0.89059384,0.89059384 0 0 0 1.258733,-0.0011 0.89059384,0.89059384 0 0 0 0.0011,-1.258734 z m 3.157322,2.5989476 C 14.878883,11.130661 14.63311,9.5505883 13.574293,8.4917699 L 8.0971935,3.0146693 c -1.3788833,-1.3788834 -3.6417927,-1.3788834 -5.0206763,0 -1.3788832,1.3788835 -1.3788832,3.6417923 0,5.0206758 l 5.4771015,5.4770999 c 1.0684578,1.068461 2.6677133,1.309 3.9751643,0.721618 L 10.863903,12.61331 C 10.52313,12.56935 10.192359,12.412637 9.9228935,12.14317 L 4.4457925,6.6660699 c -0.6439903,-0.6439904 -0.6439903,-1.6381351 0,-2.2821254 0.6439903,-0.6439904 1.6381347,-0.6439904 2.282125,0 l 5.4771005,5.4771012 c 0.285474,0.2854723 0.444399,0.6397523 0.47678,1.0018363 z" /></g></svg>`,
         'unlink': `<svg width="18px" height="18px" viewBox="0 0 30 30" version="1.1" id="svg5"><defs id="defs2" /><g id="layer1"><g aria-label="a" id="text14687" style="font-size:8.50085px;line-height:1.25;font-family:'Barlow ExtraBold';-inkscape-font-specification:'Barlow ExtraBold, ';letter-spacing:0px;word-spacing:0px;stroke-width:0.212522" /><g aria-label="b" id="text14687-3" style="font-size:8.50085px;line-height:1.25;font-family:'Barlow ExtraBold';-inkscape-font-specification:'Barlow ExtraBold, ';letter-spacing:0px;word-spacing:0px;stroke-width:0.212522" /><path id="path32213" style="fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.135402px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" d="M 12.529144,15.861136 9.9345687,17.966309 9.344536,16.357302 Z m 0.945985,1.059781 0.09348,3.535012 -1.730809,-0.542465 z m 3.720258,-3.018249 2.594575,-2.105173 0.590033,1.609007 z m -0.912233,-0.917738 -0.09348,-3.535011 1.73081,0.5424641 z m 1.237796,2.655877 c 1.300807,-0.567273 2.880881,-0.321499 3.939699,0.737319 l 5.477102,5.477102 c 1.378884,1.378883 1.378884,3.641794 0,5.020676 -1.378882,1.378883 -3.641792,1.378883 -5.020676,0 l -5.477102,-5.477102 c -1.06846,-1.068461 -1.309,-2.667715 -0.721618,-3.975167 l 1.620754,1.66488 c 0.04396,0.340773 0.200673,0.671545 0.47014,0.941012 l 5.477103,5.477101 c 0.64399,0.643991 1.638134,0.643991 2.282124,0 0.64399,-0.643989 0.64399,-1.638134 0,-2.282124 l -5.477102,-5.477102 c -0.285473,-0.285475 -0.639754,-0.4444 -1.001839,-0.476781 z m -2.640393,0.437826 4.142311,4.142311 c 0.348015,0.346991 0.911325,0.346498 1.258733,-0.0011 0.347599,-0.347408 0.348091,-0.910719 0.0011,-1.258734 l -4.197363,-4.197445 c -1.466896,-0.223377 0.224293,1.626651 -1.204781,1.314968 z m -0.06767,-2.587448 -3.658594,-3.6586656 c -0.347848,-0.348087 -0.912075,-0.348087 -1.2599225,0 -0.3480871,0.3478476 -0.3480871,0.9120746 0,1.2599226 l 3.5937035,3.593704 c 1.652874,0.236978 0.04257,-1.184713 1.324813,-1.194961 z M 14.311611,12.431467 C 14.878883,11.130661 14.63311,9.5505883 13.574293,8.4917699 L 8.0971935,3.0146693 c -1.3788833,-1.3788834 -3.6417927,-1.3788834 -5.0206763,0 -1.3788832,1.3788835 -1.3788832,3.6417923 0,5.0206758 l 5.4771015,5.4770999 c 1.0684578,1.068461 2.6677133,1.309 3.9751643,0.721618 L 10.863903,12.61331 C 10.52313,12.56935 10.192359,12.412637 9.9228935,12.14317 L 4.4457925,6.6660699 c -0.6439903,-0.6439904 -0.6439903,-1.6381351 0,-2.2821254 0.6439903,-0.6439904 1.6381347,-0.6439904 2.282125,0 l 5.4771005,5.4771012 c 0.285474,0.2854723 0.444399,0.6397523 0.47678,1.0018363 z" /></g></svg>`,
-        'image': `<svg width="18px" height="18px" viewBox="0 0 30 30" version="1.1" id="svg5"><defs id="defs2" /><g id="layer1"><g aria-label="a" id="text14687" style="font-size:8.50085px;line-height:1.25;font-family:'Barlow ExtraBold';-inkscape-font-specification:'Barlow ExtraBold, ';letter-spacing:0px;word-spacing:0px;stroke-width:0.212522" /><g aria-label="b" id="text14687-3" style="font-size:8.50085px;line-height:1.25;font-family:'Barlow ExtraBold';-inkscape-font-specification:'Barlow ExtraBold, ';letter-spacing:0px;word-spacing:0px;stroke-width:0.212522" /><path id="path32546" style="fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.999999px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" transform="scale(0.26458333)" d="M 49.134766,45.353516 26.457031,75.589844 V 98.267578 H 86.929688 V 64.251953 L 75.589844,52.914062 64.251953,64.251953 Z m 0,4 9.949218,12.4375 c 3.038457,3.79807 -1.59889,2.487883 -4.617187,3.667968 -2.115644,0.827169 -2.323405,4.711514 -3.304688,4.582032 -2.265516,-0.298923 -2.079626,-5.578141 -4.421875,-4.699219 -6.648907,2.494976 -11.979434,9.7537 -9.333984,-0.351563 z m 26.455078,7.560546 5.603515,5.601563 c -1.095031,0.35743 -2.399246,-1.443529 -2.02539,2.507813 -1.637182,-0.189619 -2.869768,-4.213703 -4.97461,0.0625 -0.88004,-0.175182 -1.563768,-0.746943 -1.996093,-1.84375 -0.540405,-1.371013 -3.028216,0.950253 -4.91211,2.070312 l 2.285156,-2.378906 z M 14.992618,7.4335632 V 11.338583 109.73179 H 98.393209 V 7.4335632 Z m 7.81004,7.8100388 H 90.583171 V 101.92175 H 22.802658 Z" /></g></svg>`
+        'image': `<svg width="18px" height="18px" viewBox="0 0 30 30" version="1.1" id="svg5"><defs id="defs2" /><g id="layer1"><g aria-label="a" id="text14687" style="font-size:8.50085px;line-height:1.25;font-family:'Barlow ExtraBold';-inkscape-font-specification:'Barlow ExtraBold, ';letter-spacing:0px;word-spacing:0px;stroke-width:0.212522" /><g aria-label="b" id="text14687-3" style="font-size:8.50085px;line-height:1.25;font-family:'Barlow ExtraBold';-inkscape-font-specification:'Barlow ExtraBold, ';letter-spacing:0px;word-spacing:0px;stroke-width:0.212522" /><path id="path32546" style="fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.999999px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" transform="scale(0.26458333)" d="M 49.134766,45.353516 26.457031,75.589844 V 98.267578 H 86.929688 V 64.251953 L 75.589844,52.914062 64.251953,64.251953 Z m 0,4 9.949218,12.4375 c 3.038457,3.79807 -1.59889,2.487883 -4.617187,3.667968 -2.115644,0.827169 -2.323405,4.711514 -3.304688,4.582032 -2.265516,-0.298923 -2.079626,-5.578141 -4.421875,-4.699219 -6.648907,2.494976 -11.979434,9.7537 -9.333984,-0.351563 z m 26.455078,7.560546 5.603515,5.601563 c -1.095031,0.35743 -2.399246,-1.443529 -2.02539,2.507813 -1.637182,-0.189619 -2.869768,-4.213703 -4.97461,0.0625 -0.88004,-0.175182 -1.563768,-0.746943 -1.996093,-1.84375 -0.540405,-1.371013 -3.028216,0.950253 -4.91211,2.070312 l 2.285156,-2.378906 z M 14.992618,7.4335632 V 11.338583 109.73179 H 98.393209 V 7.4335632 Z m 7.81004,7.8100388 H 90.583171 V 101.92175 H 22.802658 Z" /></g></svg>`,
+        'background': `<svg width="18px" height="18px" viewBox="0 0 30 30" version="1.1"><defs id="defs2" /><g id="layer1"><path id="rect3759" style="fill:#000000;fill-opacity:1;stroke:none;stroke-width:2.3811;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" d="M 7.5585938 7.5585938 L 7.5585938 105.82617 L 105.82617 105.82617 L 105.82617 7.5585938 L 7.5585938 7.5585938 z M 49.777344 15.117188 L 63.701172 15.117188 L 98.300781 98.267578 L 85.53125 98.267578 L 77.261719 76.9375 L 36.339844 76.9375 L 28.070312 98.267578 L 15.117188 98.267578 L 49.777344 15.117188 z M 56.708984 26.201172 L 40.048828 67.580078 L 73.431641 67.580078 L 56.708984 26.201172 z " transform="scale(0.26458333)" /><g aria-label="A" transform="matrix(0.88533366,0,0,0.81089007,2.2488146,2.331147)" id="text2709" style="font-size:37.2161px;letter-spacing:0px;word-spacing:0px;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:0.930404;stroke-opacity:1" /></g></svg>`,
+        'color': `<svg width="16px" height="16px" viewBox="0 0 30 30" version="1.1" id="svg5"><defs id="defs2" /><g id="layer1"><g aria-label="A" transform="scale(1.0448834,0.95704457)" id="text2709" style="font-size:37.2161px;letter-spacing:0px;word-spacing:0px;stroke-width:0.63;fill:none;stroke:#000000"><path style="color:#000000;fill:#000000;stroke:none;-inkscape-stroke:none" d="M 12.119141,1.7421875 12.041016,1.9453125 1.5214844,29.503906 H 6.0703125 L 8.5429688,22.542969 H 20.328125 l 2.470703,6.960937 h 4.496094 L 16.714844,1.7421875 Z m 0.433593,0.6308594 H 16.28125 L 26.380859,28.873047 H 23.244141 L 20.771484,21.914062 H 8.0976563 L 5.6269531,28.873047 H 2.4355469 Z M 14.40625,4.765625 14.111328,5.5644531 8.9765625,19.490234 H 19.857422 Z m 0.002,1.8183594 4.544922,12.2773436 H 9.8808594 Z" id="path3509" /></g></g></svg>`
 
     }
 }

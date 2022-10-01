@@ -78,6 +78,11 @@
     top: 52px;
     left: 6px;
 }
+
+.gnommy-editor-popup-window.textcolor {
+    min-width: 220px;
+}
+
 .gnommy-editor-popup-window::before,
 .gnommy-editor-popup-window::after {
     content: '';
@@ -99,11 +104,15 @@
 }
 .gnommy-editor-popup-window.link::before,
 .gnommy-editor-popup-window.link::after {
-    left: 218px;
+    left: 348px;
 }
 .gnommy-editor-popup-window.image::before,
 .gnommy-editor-popup-window.image::after {
     left: 304px;
+}
+.gnommy-editor-popup-window.textcolor::before,
+.gnommy-editor-popup-window.textcolor::after {
+    left: 218px;
 }
 .gnommy-editor-popup-window.free {
     top: 50%;
@@ -113,6 +122,10 @@
 .gnommy-editor-popup-window.free::before,
 .gnommy-editor-popup-window.free::after {
     display: none;
+}
+
+.gnommy-editor-color-box {
+    text-align: center;
 }
 
 .gnommy-editor-linkedit-box,
