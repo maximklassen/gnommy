@@ -104,11 +104,11 @@
 }
 .gnommy-editor-popup-window.link::before,
 .gnommy-editor-popup-window.link::after {
-    left: 348px;
+    left: 302px;
 }
 .gnommy-editor-popup-window.image::before,
 .gnommy-editor-popup-window.image::after {
-    left: 304px;
+    left: 260px;
 }
 .gnommy-editor-popup-window.textcolor::before,
 .gnommy-editor-popup-window.textcolor::after {

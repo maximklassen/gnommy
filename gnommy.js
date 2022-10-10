@@ -544,20 +544,14 @@ class Gnommy {
 
         this.linkeditButtonBox = document.createElement('div')
         this.linkeditButtonBox.classList.add('gnommy-editor-linkpopup-buttons')
-        //this.linkeditOkButton = document.createElement('button')
-        //this.linkeditOkButton.innerHTML = 'OK'
         this.linkeditCancelButton = document.createElement('button')
         this.linkeditCancelButton.innerHTML = 'Cancel'
-        this.linkeditButtonBox.append(/* this.linkeditOkButton, */this.linkeditCancelButton)
+        this.linkeditButtonBox.append(this.linkeditCancelButton)
         this.heditbox.append(this.heditButtonOne,this.heditButtonTwo,this.heditButtonThree,this.heditButtonFour,this.heditButtonFive,this.heditButtonSix,this.linkeditButtonBox)
 
         this.linkeditCancelButton.addEventListener('click',function(){
             self.closePopup()
         })
-
-        /* this.linkeditOkButton.addEventListener('click',function(){
-            //self.setHeader (self.linkeditLink.value, self.linkeditText.value)
-        }) */
 
         return this.heditbox
     }
@@ -812,12 +806,12 @@ class Gnommy {
             self.createColorPopup()
         })
 
-        this.backgroundButton = this.createButton()
+        /* this.backgroundButton = this.createButton()
         this.backgroundButton.title = 'Text background color'
         this.backgroundButton.insertAdjacentHTML('afterbegin',this.buttonPictures.background)
         this.backgroundButton.addEventListener('click',function(){
             self.createColorPopup(true)
-        })
+        }) */
 
         this.ulButton = this.createButton()
         this.ulButton.title = 'Unordered list'
@@ -861,7 +855,7 @@ class Gnommy {
             this.underlineButton,
             this.strikeButton,
             this.colorButton,
-            this.backgroundButton,
+            //this.backgroundButton,
             this.imageButton,
             this.linkButton,
             this.unlinkButton,
@@ -893,13 +887,6 @@ class Gnommy {
             self.startResizeY = self.currentResizeY
             self.startResizeH = self.currentResizeH
         })
-        //this.editorresizebox.addEventListener('mouseout',function(){
-        /* this.editorbox.addEventListener('mouseout',function(){
-            self.resizable = false;
-            self.startResizeY = self.currentResizeY
-            self.startResizeH = self.currentResizeH
-        }) */
-        //this.editorresizebox.addEventListener('mousemove',function(e){
         this.editorbox.addEventListener('mousemove',function(e){
             if (self.resizable) {
                 self.currentResizeY = e.pageY - self.startResizeY
@@ -1037,30 +1024,22 @@ class Gnommy {
 
     setTextColor(color) {
         if (color) {
-            console.log(color)
             let range = new Range()
             range.setStart(this.lastRange.startContainer,this.lastRange.startOffset)
             range.setEnd(this.lastRange.endContainer,this.lastRange.endOffset)
-            //console.log(this.getParent(this.lastRange.endContainer,'span','color'))
             let fragment = this.unwrap(range.extractContents().childNodes,'span',true,'color')
             range.insertNode(this.wrap(fragment,'span',{'color':color}))
-            console.log(range)
-            //range.collapse()
             this.closePopup()
         }
     }
 
     setBgColor(color) {
         if (color) {
-            console.log(color)
             let range = new Range()
             range.setStart(this.lastRange.startContainer,this.lastRange.startOffset)
             range.setEnd(this.lastRange.endContainer,this.lastRange.endOffset)
-            //console.log(this.getParent(this.lastRange.endContainer,'span','color'))
             let fragment = this.unwrap(range.extractContents().childNodes,'span',true,'backgroundColor')
             range.insertNode(this.wrap(fragment,'span',{'background-color':color}))
-            console.log(range)
-            //range.collapse()
             this.closePopup()
         }
     }
@@ -1623,7 +1602,6 @@ class Gnommy {
                 if (typeof style == 'object') {
                     style = this.objectToSyleStr(style)
                 }
-                //wrapper.style = style
                 wrapper.setAttribute('style',style)
             }
             wrapper.append(element)
@@ -1636,9 +1614,7 @@ class Gnommy {
         let self = this,
             fragment = new DocumentFragment()
         Array.from(nodeList).forEach(function(node) {
-            console.log('ww',node)
             if (deep && node.childNodes && node.childNodes.length > 0 && (node.childNodes.length > 1 || node.childNodes[0].nodeName != '#text')) {
-                console.log('qq',node.childNodes,wrapperName,deep,hasStyle)
                 fragment.append(self.unwrap(node.childNodes,wrapperName,deep,hasStyle))
             }
             else if (wrapperName.toUpperCase() == node.nodeName && (!hasStyle || (hasStyle && node.style[hasStyle]))) {
