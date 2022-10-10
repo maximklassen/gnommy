@@ -1636,7 +1636,9 @@ class Gnommy {
         let self = this,
             fragment = new DocumentFragment()
         Array.from(nodeList).forEach(function(node) {
+            console.log('ww',node)
             if (deep && node.childNodes && node.childNodes.length > 0 && (node.childNodes.length > 1 || node.childNodes[0].nodeName != '#text')) {
+                console.log('qq',node.childNodes,wrapperName,deep,hasStyle)
                 fragment.append(self.unwrap(node.childNodes,wrapperName,deep,hasStyle))
             }
             else if (wrapperName.toUpperCase() == node.nodeName && (!hasStyle || (hasStyle && node.style[hasStyle]))) {
