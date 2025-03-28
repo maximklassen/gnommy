@@ -29,7 +29,7 @@ class Gnommy {
     }
 
     checkTextarea (textfield) {
-        if (typeof textfield == 'string') {
+        if (typeof textfield === 'string') {
             textfield = document.querySelector(textfield)
         }
         if (textfield && textfield instanceof HTMLElement) {
@@ -743,11 +743,6 @@ class Gnommy {
         }
     }
 
-
-
-
-
-
     init () {
         let self = this
 
@@ -928,7 +923,7 @@ class Gnommy {
         this.textfieldbox.append(this.textfield)
 
         this.editorfield.addEventListener('keydown',function(e){
-            if (e.code == 'Enter' || e.code == 'NumpadEnter') {
+            if (e.code === 'Enter' || e.code === 'NumpadEnter') {
                 let setParagraph = e.ctrlKey
                 if (self.pEnter) {
                     setParagraph = !e.ctrlKey
@@ -940,27 +935,25 @@ class Gnommy {
         this.editorfield.addEventListener('input',function(){
             self.contentClone(this,self.textfield)
         })
-        this.editorfield.addEventListener('DOMNodeInserted',function(){
-            self.contentClone(this,self.textfield)
-        })
-        this.editorfield.addEventListener('DOMNodeRemoved',function(){
-            self.contentClone(this,self.textfield)
-        })
-        this.editorfield.addEventListener('DOMCharacterDataModified',function(){
-            self.contentClone(this,self.textfield)
-        })
-        this.editorfield.addEventListener('DOMAttributeNameChanged',function(){
-            self.contentClone(this,self.textfield)
-        })
-        this.editorfield.addEventListener('DOMAttrModified',function(){
-            self.contentClone(this,self.textfield)
-        })
-        this.editorfield.addEventListener('DOMElementNameChanged',function(){
-            self.contentClone(this,self.textfield)
-        })
-        this.editorfield.addEventListener('DOMSubtreeModified',function(){
-            self.contentClone(this,self.textfield)
-        })
+
+        const observer = new MutationObserver((mutationsList) => {
+            for (let mutation of mutationsList) {
+                if (
+                    mutation.type === 'childList' ||
+                    mutation.type === 'characterData' ||
+                    mutation.type === 'attributes'
+                ) {
+                    self.contentClone(self.editorfield, self.textfield);
+                    break;
+                }
+            }
+        });
+        observer.observe(this.editorfield, {
+            childList: true,
+            subtree: true,
+            characterData: true,
+            attributes: true
+        });
         this.textfield.addEventListener('input',function(){
             self.contentClone(this,self.editorfield,false)
         })
@@ -1566,7 +1559,7 @@ class Gnommy {
     }
     
     isEmpty (value) {
-        if (value === null || value === false || value === undefined || value === NaN || value == '' || value === {} || value === [] || value == 'undefined') {
+        if (value === null || value === false || value === undefined || value === NaN || value == '' || value == 'undefined') {
             return true
         }
         return false
